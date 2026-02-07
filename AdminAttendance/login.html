@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>HR Admin Login - Attendance System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .admin-login-container {
+      max-width: 400px;
+      margin: 100px auto;
+    }
+    .admin-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .admin-header h1 {
+      color: #667eea;
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+    .admin-header p {
+      color: #718096;
+    }
+  </style>
+</head>
+<body>
+  <div class="container admin-login-container">
+    <div class="admin-header">
+      <h1>🏢 HR Admin Portal</h1>
+      <p>Sign in to access the admin dashboard</p>
+    </div>
+    
+    <input id="adminEmail" type="email" placeholder="Admin Email">
+    <input id="adminPassword" type="password" placeholder="Admin Password">
+    <button onclick="adminLogin()">Login as Admin</button>
+
+    <p style="text-align: center; margin-top: 20px;">
+      <a href="login.html">← Back to Employee Login</a>
+    </p>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3000/api';
+
+    async function adminLogin() {
+      const email = document.getElementById('adminEmail').value;
+      const password = document.getElementById('adminPassword').value;
+
+      if (!email || !password) {
+        alert('Please enter both email and password');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/admin/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          localStorage.setItem('adminUser', JSON.stringify(data.admin));
+          window.location.href = 'admin.html';
+        } else {
+          alert(data.error || 'Login failed');
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        alert('Login failed. Please try again.');
+      }
+    }
+
+    // Allow Enter key to submit
+    document.getElementById('adminPassword').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') adminLogin();
+    });
+  </script>
+</body>
+</html>

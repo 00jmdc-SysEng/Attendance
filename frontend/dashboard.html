@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard - Attendance System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header-section">
+      <h2 id="userLabel">Welcome</h2>
+      <div class="clock-display">
+        <div class="clock-time" id="clockTime">--:--:--</div>
+        <div class="clock-date" id="clockDate">Loading...</div>
+        <div class="clock-sync" id="clockSync">🔄 Syncing...</div>
+      </div>
+    </div>
+
+    <h3>Attendance</h3>
+    <select id="mode">
+      <option value="onsite">Onsite</option>
+      <option value="wfh">WFH</option>
+    </select>
+    <button id="clockInBtn">Clock In</button>
+    <button id="clockOutBtn">Clock Out</button>
+
+    <div class="divider"></div>
+
+    <h3>File Leave</h3>
+    <select id="leaveType">
+      <option value="">Select Leave Type</option>
+      <option value="sick">Sick Leave</option>
+      <option value="vacation">Vacation Leave</option>
+      <option value="emergency">Emergency Leave</option>
+      <option value="official">Official Business</option>
+    </select>
+    <textarea id="leaveReason" placeholder="Reason for leave (optional)" rows="3"></textarea>
+    <button id="fileLeaveBtn">File Leave</button>
+
+    <div class="divider"></div>
+
+    <h3>Attendance Records</h3>
+    
+    <!-- Filter Controls -->
+    <div class="filter-section">
+      <div class="filter-row">
+        <div class="filter-group">
+          <label for="filterType">Type:</label>
+          <select id="filterType">
+            <option value="all">All</option>
+            <option value="onsite">Onsite</option>
+            <option value="wfh">WFH</option>
+            <option value="leave">Leave</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="filterLeaveType">Leave Type:</label>
+          <select id="filterLeaveType">
+            <option value="all">All</option>
+            <option value="sick">Sick</option>
+            <option value="vacation">Vacation</option>
+            <option value="emergency">Emergency</option>
+            <option value="official">Official Business</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="filter-row">
+        <div class="filter-group">
+          <label for="filterDateFrom">From:</label>
+          <input type="date" id="filterDateFrom">
+        </div>
+        
+        <div class="filter-group">
+          <label for="filterDateTo">To:</label>
+          <input type="date" id="filterDateTo">
+        </div>
+      </div>
+      
+      <div class="filter-actions">
+        <button id="applyFilterBtn" class="filter-btn">Apply Filters</button>
+        <button id="clearFilterBtn" class="filter-btn clear-btn">Clear Filters</button>
+      </div>
+    </div>
+    
+    <div class="records-container">
+      <div id="records"></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Camera Modal -->
+    <div id="cameraModal" class="modal hidden">
+      <div class="modal-content">
+        <h3>📸 Take Your Photo for Clock In</h3>
+        <video id="video" autoplay muted></video>
+        <div class="modal-buttons">
+          <button id="captureBtn">Capture Photo</button>
+          <button id="retakeBtn" class="hidden">Retake Photo</button>
+        </div>
+        <img id="photoPreview" alt="Captured Photo">
+        <div class="modal-actions">
+          <button id="confirmBtn" class="hidden confirm-btn">Confirm & Clock In</button>
+          <button id="cancelBtn" class="cancel-btn">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="login.js"></script>
+  <script>
+    // Initialize dashboard functionality after login
+    if (!localStorage.getItem('currentUser')) {
+      window.location.href = 'login.html'; // redirect if not logged in
+    } else {
+      currentUser = JSON.parse(localStorage.getItem('currentUser'));
+      userLabel.textContent = `Welcome, ${currentUser.name}`;
+      loadLogs();
+      
+      // Initialize server-synced clock
+      initServerClock();
+    }
+  </script>
+</body>
+</html>

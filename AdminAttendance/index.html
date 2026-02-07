@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>HR Admin - Attendance System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="admin-container">
+    <div class="admin-header">
+      <h1>🏢 HR Admin Dashboard</h1>
+      <div class="admin-user-info">
+        <span id="adminName">HR Admin</span>
+        <button onclick="logout()" class="logout-btn">Logout</button>
+      </div>
+    </div>
+
+    <div class="admin-tabs">
+      <button class="tab-btn active" onclick="showTab('overview')">📊 Overview</button>
+      <button class="tab-btn" onclick="showTab('employees')">👥 Employees</button>
+      <button class="tab-btn" onclick="showTab('reports')">📈 Reports</button>
+      <button class="tab-btn" onclick="showTab('attendance')">📅 Attendance Logs</button>
+      <button class="tab-btn" onclick="showTab('leaves')">🏖️ Leave Management</button>
+    </div>
+
+    <!-- OVERVIEW TAB -->
+    <div id="overview-tab" class="tab-content active">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">👤</div>
+          <div class="stat-value" id="totalEmployees">0</div>
+          <div class="stat-label">Total Employees</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-value" id="presentToday">0</div>
+          <div class="stat-label">Present Today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🏠</div>
+          <div class="stat-value" id="wfhToday">0</div>
+          <div class="stat-label">WFH Today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🏖️</div>
+          <div class="stat-value" id="onLeaveToday">0</div>
+          <div class="stat-label">On Leave Today</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Today's Attendance Summary</h2>
+        <div id="todaySummary"></div>
+      </div>
+    </div>
+
+    <!-- EMPLOYEES TAB -->
+    <div id="employees-tab" class="tab-content">
+      <div class="section">
+        <h2>Employee Directory</h2>
+        <input type="text" id="searchEmployee" placeholder="🔍 Search by name or email..." class="search-input">
+        <div id="employeeList"></div>
+      </div>
+    </div>
+
+    <!-- REPORTS TAB -->
+    <div id="reports-tab" class="tab-content">
+      <div class="section">
+        <h2>Generate Reports</h2>
+        
+        <div class="report-form">
+          <h3>📋 DTR (Daily Time Record) Report</h3>
+          <div class="form-group">
+            <label>Report Type:</label>
+            <select id="dtrReportType">
+              <option value="monthly">Monthly DTR</option>
+              <option value="weekly">Weekly DTR</option>
+              <option value="custom">Custom Date Range</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Employee:</label>
+            <select id="dtrEmployee">
+              <option value="all">All Employees</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="monthlySelector">
+            <label>Month:</label>
+            <input type="month" id="dtrMonth">
+          </div>
+
+          <div class="form-group hidden" id="weeklySelector">
+            <label>Week Starting:</label>
+            <input type="date" id="dtrWeekStart">
+          </div>
+
+          <div class="form-group hidden" id="customSelector">
+            <label>From:</label>
+            <input type="date" id="dtrDateFrom">
+            <label>To:</label>
+            <input type="date" id="dtrDateTo">
+          </div>
+
+          <button onclick="generateDTR()" class="btn-primary">📥 Generate DTR Excel</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="report-form">
+          <h3>📊 Leave Summary Report</h3>
+          <div class="form-group">
+            <label>Period:</label>
+            <input type="month" id="leavePeriod">
+          </div>
+          <div class="form-group">
+            <label>Employee:</label>
+            <select id="leaveEmployee">
+              <option value="all">All Employees</option>
+            </select>
+          </div>
+          <button onclick="generateLeaveReport()" class="btn-primary">📥 Generate Leave Report</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="report-form">
+          <h3>⏱️ Time Log Summary</h3>
+          <div class="form-group">
+            <label>Date Range:</label>
+            <input type="date" id="timelogFrom">
+            <label>to</label>
+            <input type="date" id="timelogTo">
+          </div>
+          <div class="form-group">
+            <label>Employee:</label>
+            <select id="timelogEmployee">
+              <option value="all">All Employees</option>
+            </select>
+          </div>
+          <button onclick="generateTimeLog()" class="btn-primary">📥 Generate Time Log</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="report-form">
+          <h3>📈 Attendance Analytics</h3>
+          <div class="form-group">
+            <label>Period:</label>
+            <input type="month" id="analyticsPeriod">
+          </div>
+          <button onclick="generateAnalytics()" class="btn-primary">📥 Generate Analytics Report</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ATTENDANCE TAB -->
+    <div id="attendance-tab" class="tab-content">
+      <div class="section">
+        <h2>Attendance Logs</h2>
+        
+        <div class="filter-panel">
+          <div class="form-group">
+            <label>Employee:</label>
+            <select id="attendanceEmployee">
+              <option value="all">All Employees</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Date From:</label>
+            <input type="date" id="attendanceDateFrom">
+          </div>
+          <div class="form-group">
+            <label>Date To:</label>
+            <input type="date" id="attendanceDateTo">
+          </div>
+          <div class="form-group">
+            <label>Mode:</label>
+            <select id="attendanceMode">
+              <option value="all">All</option>
+              <option value="onsite">Onsite</option>
+              <option value="wfh">WFH</option>
+            </select>
+          </div>
+          <button onclick="loadAttendanceLogs()" class="btn-secondary">🔍 Search</button>
+          <button onclick="exportAttendanceLogs()" class="btn-primary">📥 Export to Excel</button>
+        </div>
+
+        <div id="attendanceLogsList"></div>
+      </div>
+    </div>
+
+    <!-- LEAVES TAB -->
+    <div id="leaves-tab" class="tab-content">
+      <div class="section">
+        <h2>Leave Management</h2>
+        
+        <div class="filter-panel">
+          <div class="form-group">
+            <label>Employee:</label>
+            <select id="leaveEmployeeFilter">
+              <option value="all">All Employees</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Leave Type:</label>
+            <select id="leaveTypeFilter">
+              <option value="all">All Types</option>
+              <option value="sick">Sick Leave</option>
+              <option value="vacation">Vacation Leave</option>
+              <option value="emergency">Emergency Leave</option>
+              <option value="official">Official Business</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Period:</label>
+            <input type="month" id="leavePeriodFilter">
+          </div>
+          <button onclick="loadLeaves()" class="btn-secondary">🔍 Search</button>
+          <button onclick="exportLeaves()" class="btn-primary">📥 Export to Excel</button>
+        </div>
+
+        <div id="leavesList"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
