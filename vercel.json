@@ -16,24 +16,24 @@
       "dest": "/frontend/login.html"
     },
     {
-      "src": "/admin",
-      "dest": "/frontend/admin.html"
-    },
-    {
       "src": "/login",
       "dest": "/frontend/login.html"
     },
     {
+      "src": "/register",
+      "dest": "/frontend/register.html"
+    },
+    {
       "src": "/dashboard",
-      "dest": "/frontend/index.html"
+      "dest": "/frontend/dashboard.html"
     },
     {
-      "src": "/frontend/(.*)",
+      "src": "/(.*\\.(html|css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot))",
       "dest": "/frontend/$1"
     },
     {
-      "src": "/(.*\\.(html|css|js|png|jpg|jpeg|gif|ico|svg))",
-      "dest": "/frontend/$1"
+      "src": "/assets/(.*)",
+      "dest": "/frontend/assets/$1"
     }
   ]
 }
