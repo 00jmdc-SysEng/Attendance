@@ -1,39 +1,36 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "backend/server.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "backend/server.js"
+  "rewrites": [
+    { 
+      "source": "/api/logs/:userId", 
+      "destination": "/api/get-log?userId=:userId" 
     },
-    {
-      "src": "/",
-      "dest": "/frontend/login.html"
+    { 
+      "source": "/api/register", 
+      "destination": "/api/register" 
     },
-    {
-      "src": "/login",
-      "dest": "/frontend/login.html"
+    { 
+      "source": "/api/login", 
+      "destination": "/api/login" 
     },
-    {
-      "src": "/register",
-      "dest": "/frontend/register.html"
+    { 
+      "source": "/api/clock-in", 
+      "destination": "/api/clock-in" 
     },
-    {
-      "src": "/dashboard",
-      "dest": "/frontend/dashboard.html"
+    { 
+      "source": "/api/clock-out", 
+      "destination": "/api/clock-out" 
     },
-    {
-      "src": "/(.*\\.(html|css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot))",
-      "dest": "/frontend/$1"
+    { 
+      "source": "/api/file-leave", 
+      "destination": "/api/file-leave" 
     },
-    {
-      "src": "/assets/(.*)",
-      "dest": "/frontend/assets/$1"
+    { 
+      "source": "/", 
+      "destination": "/frontend/login.html" 
+    },
+    { 
+      "source": "/:path*", 
+      "destination": "/frontend/:path*" 
     }
   ]
 }

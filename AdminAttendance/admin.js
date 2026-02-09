@@ -1,5 +1,5 @@
 // API Configuration
-const API_URL = 'http://localhost:3000/api';
+const API_URL = '/api';
 
 // Current admin session
 let currentAdmin = null;
@@ -249,28 +249,25 @@ async function loadAttendanceLogs() {
 }
 
 function displayAttendanceLogs(logs) {
-  const container = document.getElementById('attendanceLogsList');
+  const container = document.getElementById('attendanceLogs');
   
   if (!logs.length) {
-    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><p>No attendance logs found</p></div>';
+    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><p>No attendance records found</p></div>';
     return;
   }
   
   let html = '<table class="data-table"><thead><tr><th>Employee</th><th>Date</th><th>Mode</th><th>Clock In</th><th>Clock Out</th><th>Hours</th><th>Photo</th></tr></thead><tbody>';
   
   logs.forEach(log => {
-    const hours = calculateHours(log.clock_in, log.clock_out);
-    const photoBtn = log.photo ? `<button onclick="showPhoto('${log.photo}')" class="btn-secondary" style="padding: 5px 10px; font-size: 12px;">📷 View</button>` : '-';
-    
     html += `
       <tr>
         <td><strong>${log.full_name}</strong></td>
-        <td>${formatDate(log.date || log.clock_in)}</td>
-        <td><span class="status-badge status-${log.mode}">${log.mode ? log.mode.toUpperCase() : '-'}</span></td>
-        <td>${log.clock_in ? formatTime(log.clock_in) : '-'}</td>
-        <td>${log.clock_out ? formatTime(log.clock_out) : '<em>Ongoing</em>'}</td>
-        <td>${hours}</td>
-        <td>${photoBtn}</td>
+        <td>${formatDate(log.clock_in)}</td>
+        <td><span class="status-badge status-${log.mode}">${log.mode.toUpperCase()}</span></td>
+        <td>${formatTime(log.clock_in)}</td>
+        <td>${log.clock_out ? formatTime(log.clock_out) : '<em>Not clocked out</em>'}</td>
+        <td>${calculateHours(log.clock_in, log.clock_out)}</td>
+        <td>${log.photo ? '<button class="btn-small" onclick="showPhoto(\'' + log.photo + '\')">📷 View</button>' : '-'}</td>
       </tr>
     `;
   });
@@ -286,12 +283,7 @@ async function loadLeaves() {
   const period = document.getElementById('leavePeriodFilter').value;
   
   try {
-    const params = new URLSearchParams({
-      employeeId,
-      leaveType,
-      period
-    });
-    
+    const params = new URLSearchParams({ employeeId, leaveType, period });
     const response = await fetch(`${API_URL}/admin/leaves?${params}`);
     const data = await response.json();
     
@@ -302,22 +294,22 @@ async function loadLeaves() {
 }
 
 function displayLeaves(leaves) {
-  const container = document.getElementById('leavesList');
+  const container = document.getElementById('leaveRecords');
   
   if (!leaves.length) {
     container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🏖️</div><p>No leave records found</p></div>';
     return;
   }
   
-  let html = '<table class="data-table"><thead><tr><th>Employee</th><th>Date</th><th>Leave Type</th><th>Reason</th></tr></thead><tbody>';
+  let html = '<table class="data-table"><thead><tr><th>Employee</th><th>Leave Type</th><th>Reason</th><th>Date Filed</th></tr></thead><tbody>';
   
   leaves.forEach(leave => {
     html += `
       <tr>
         <td><strong>${leave.full_name}</strong></td>
+        <td><span class="leave-badge leave-${leave.leave_type}">${leave.leave_type.toUpperCase()}</span></td>
+        <td>${leave.leave_reason || '-'}</td>
         <td>${formatDate(leave.created_at)}</td>
-        <td><span class="status-badge status-leave">${leave.leave_type}</span></td>
-        <td>${leave.leave_reason || '<em>No reason provided</em>'}</td>
       </tr>
     `;
   });
