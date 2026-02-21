@@ -80,7 +80,7 @@ module.exports = async (req, res) => {
         body: JSON.stringify({
           full_name: name,
           email: email,
-          password_hash: 'GOOGLE_AUTH',
+          password_hash: 'SUPABASE_AUTH',
           is_admin: false
         })
       });
@@ -98,7 +98,7 @@ module.exports = async (req, res) => {
     });
 
   } catch (err) {
-    console.error('Google auth error:', err);
+    console.error('Auth sync error:', err);
     return res.status(401).json({ error: 'Authentication failed' });
   }
 };

@@ -21,12 +21,12 @@ app.use((req, res, next) => {
 });
 
 // Import handlers - with error handling
-let registerHandler, loginHandler, authGoogleHandler, clockInHandler, clockOutHandler, fileLeaveHandler, getLogHandler;
+let registerHandler, loginHandler, authSyncHandler, clockInHandler, clockOutHandler, fileLeaveHandler, getLogHandler;
 
 try {
   registerHandler = require('./register');
   loginHandler = require('./login');
-  authGoogleHandler = require('./auth-google');
+  authSyncHandler = require('./auth-sync');
   clockInHandler = require('./clock-in');
   clockOutHandler = require('./clock-out');
   fileLeaveHandler = require('./file-leave');
@@ -55,7 +55,7 @@ const safeHandler = (handler, name) => async (req, res) => {
 // Routes
 if (registerHandler) app.post('/register', safeHandler(registerHandler, 'REGISTER'));
 if (loginHandler) app.post('/login', safeHandler(loginHandler, 'LOGIN'));
-if (authGoogleHandler) app.post('/auth/google', safeHandler(authGoogleHandler, 'AUTH-GOOGLE'));
+if (authSyncHandler) app.post('/auth/sync', safeHandler(authSyncHandler, 'AUTH-SYNC'));
 if (clockInHandler) app.post('/clock-in', safeHandler(clockInHandler, 'CLOCK-IN'));
 if (clockOutHandler) app.post('/clock-out', safeHandler(clockOutHandler, 'CLOCK-OUT'));
 if (fileLeaveHandler) app.post('/file-leave', safeHandler(fileLeaveHandler, 'FILE-LEAVE'));
@@ -76,7 +76,7 @@ app.get('/health', (req, res) => {
     handlers: {
       register: !!registerHandler,
       login: !!loginHandler,
-      authGoogle: !!authGoogleHandler,
+      authSync: !!authSyncHandler,
       clockIn: !!clockInHandler,
       clockOut: !!clockOutHandler,
       fileLeave: !!fileLeaveHandler,

@@ -152,8 +152,8 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// ================= GOOGLE AUTH =================
-app.post('/api/auth/google', async (req, res) => {
+// ================= AUTH SYNC =================
+app.post('/api/auth/sync', async (req, res) => {
   try {
     const { accessToken } = req.body;
     if (!accessToken)
@@ -176,7 +176,7 @@ app.post('/api/auth/google', async (req, res) => {
         body: JSON.stringify({
           full_name: name,
           email: email,
-          password_hash: 'GOOGLE_AUTH',
+          password_hash: 'SUPABASE_AUTH',
           is_admin: false
         })
       });
@@ -193,7 +193,7 @@ app.post('/api/auth/google', async (req, res) => {
       }
     });
   } catch (err) {
-    console.error('Google auth error:', err);
+    console.error('Auth sync error:', err);
     safeJson(res, 401, { error: 'Authentication failed' });
   }
 });

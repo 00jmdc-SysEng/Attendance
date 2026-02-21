@@ -44,24 +44,49 @@ async function register() {
     return;
   }
 
-  try {
-    const response = await fetch(`${API_BASE}/api/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password })
-    });
+  // Use Supabase Auth for registration
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+          data: {
+            full_name: name
+          }
+        }
+      });
 
-    const data = await response.json();
+      if (error) throw error;
 
-    if (response.ok) {
-      alert('Registration successful! Please login.');
+      alert('Registration successful! Please check your email for verification.');
       window.location.href = 'login.html';
-    } else {
-      alert(data.error || 'Registration failed');
+    } catch (err) {
+      console.error('Supabase register error:', err);
+      // Fallback to legacy registration if needed, or just show error
+      alert('Registration failed: ' + err.message);
     }
-  } catch (err) {
-    console.error('Register error:', err);
-    alert('Registration failed. Please try again.');
+  } else {
+    // Legacy registration fallback
+    try {
+      const response = await fetch(`${API_BASE}/api/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert('Registration successful! Please login.');
+        window.location.href = 'login.html';
+      } else {
+        alert(data.error || 'Registration failed');
+      }
+    } catch (err) {
+      console.error('Register error:', err);
+      alert('Registration failed. Please try again.');
+    }
   }
 }
 
@@ -74,6 +99,43 @@ async function login() {
     return;
   }
 
+  // Try Supabase Auth first
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
+
+      if (data?.session) {
+        // Sync with backend
+        const response = await fetch(`${API_BASE}/api/auth/sync`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ accessToken: data.session.access_token })
+        });
+
+        const userData = await response.json();
+
+        if (response.ok) {
+          localStorage.setItem('currentUser', JSON.stringify({
+            id: userData.user.id,
+            name: userData.user.name,
+            email: userData.user.email
+          }));
+          window.location.href = 'dashboard.html';
+          return;
+        }
+      }
+
+      // If Supabase login failed or sync failed, try legacy login
+      console.log('Supabase login/sync failed, trying legacy login...');
+    } catch (err) {
+      console.error('Supabase login error:', err);
+    }
+  }
+
+  // Legacy Login
   try {
     const response = await fetch(`${API_BASE}/api/login`, {
       method: 'POST',
@@ -120,7 +182,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       console.log('Supabase session found from redirect, syncing with backend...');
 
       try {
-        const response = await fetch(`${API_BASE}/api/auth/google`, {
+        const response = await fetch(`${API_BASE}/api/auth/sync`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ accessToken: session.access_token })
@@ -217,7 +279,12 @@ if (cancelBtn) {
 async function openCamera() {
   try {
     cameraModal.classList.remove('hidden');
-    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    // Request environment camera (back camera) on mobile, fallback to user camera
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: { ideal: 'environment' }
+      }
+    });
     video.srcObject = stream;
     video.style.display = 'block';
     photoPreview.style.display = 'none';

@@ -1,6 +1,0 @@
-✅ Backend running on http://localhost:3000
-📊 Admin endpoints: /api/admin/*
-👤 Employee endpoints: /api/*
-🌐 Using Supabase REST API (works on ALL networks!)
-🚀 Vercel deployment ready!
-⚠️  Note: Database connection will be tested on first request
