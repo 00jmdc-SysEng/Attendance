@@ -47,6 +47,23 @@ async function supabaseQuery(endpoint, options = {}) {
   return text ? JSON.parse(text) : null;
 }
 
+async function verifySupabaseToken(token) {
+  const url = `${SUPABASE_URL}/auth/v1/user`;
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${token}`
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error('Invalid token');
+  }
+
+  return await response.json();
+}
+
 // Test connection on startup
 (async () => {
   try {
@@ -62,7 +79,7 @@ async function supabaseQuery(endpoint, options = {}) {
 })();
 
 // ================= UTIL: SERVER TIME =================
-async function getServerNow() {
+function getServerNow() {
   // Use JavaScript time since we don't have direct DB access
   return new Date();
 }
@@ -132,6 +149,52 @@ app.post('/api/login', async (req, res) => {
   } catch (err) {
     console.error('Login error:', err);
     safeJson(res, 500, { error: 'Login failed' });
+  }
+});
+
+// ================= GOOGLE AUTH =================
+app.post('/api/auth/google', async (req, res) => {
+  try {
+    const { accessToken } = req.body;
+    if (!accessToken)
+      return safeJson(res, 400, { error: 'Missing access token' });
+
+    // Verify token with Supabase Auth
+    const user = await verifySupabaseToken(accessToken);
+    const email = user.email;
+    const name = user.user_metadata?.full_name || user.user_metadata?.name || email.split('@')[0];
+
+    // Check if user exists in our custom table
+    const users = await supabaseQuery(`users?email=eq.${email}&select=*`);
+
+    let dbUser;
+
+    if (!users || users.length === 0) {
+      // Create new user
+      const result = await supabaseQuery('users', {
+        method: 'POST',
+        body: JSON.stringify({
+          full_name: name,
+          email: email,
+          password_hash: 'GOOGLE_AUTH',
+          is_admin: false
+        })
+      });
+      dbUser = result[0];
+    } else {
+      dbUser = users[0];
+    }
+
+    safeJson(res, 200, {
+      user: {
+        id: dbUser.id,
+        name: dbUser.full_name,
+        email: dbUser.email
+      }
+    });
+  } catch (err) {
+    console.error('Google auth error:', err);
+    safeJson(res, 401, { error: 'Authentication failed' });
   }
 });
 

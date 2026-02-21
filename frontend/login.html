@@ -13,9 +13,16 @@
     <input id="password" type="password" placeholder="Password">
     <button onclick="login()">Login</button>
 
+    <p style="text-align: center; margin: 10px 0; color: rgba(255,255,255,0.5); font-size: 0.9rem;">OR</p>
+
+    <button onclick="loginWithGoogle()" style="background: #4285F4; margin-top: 5px;">
+      Sign in with Google
+    </button>
+
     <p>Don't have an account? <a href="register.html">Register here</a></p>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="login.js"></script>
 </body>
 </html>

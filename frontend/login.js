@@ -4,7 +4,35 @@
 // API Configuration - Update this to your deployed backend URL
 const API_BASE = window.location.origin; // Uses same domain as frontend
 
+// ============ SUPABASE CONFIG ============
+const SUPABASE_URL = 'https://iyd2lrjfufiyptbsbnxg.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5ZDJscmpmdWZpeXB0YnNibnhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkxNTQ0MTIsImV4cCI6MjA1NDczMDQxMn0.p9M7vGrLwwvXGNaXqsxHZgCwJpE3lIQnNx0F5TXLR3I';
+
+let supabase;
+if (window.supabase) {
+  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
 // ============ AUTHENTICATION ============
+
+async function loginWithGoogle() {
+  if (!supabase) {
+    alert('Supabase client not initialized. Check internet connection.');
+    return;
+  }
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: window.location.origin + '/login.html'
+    }
+  });
+
+  if (error) {
+    console.error('Google login error:', error);
+    alert('Google login failed: ' + error.message);
+  }
+}
 
 async function register() {
   const name = document.getElementById('name')?.value;
@@ -82,7 +110,45 @@ function logout() {
 let currentUser = null;
 
 // Initialize dashboard on page load
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  // Check for Supabase session on load (for OAuth callback)
+  // Only proceed if we have a hash fragment (redirect from Google) to avoid auto-login loops
+  if (supabase && (window.location.pathname.includes('login.html') || window.location.pathname.includes('register.html'))) {
+    const { data: { session }, error } = await supabase.auth.getSession();
+
+    if (session && window.location.hash && (window.location.hash.includes('access_token') || window.location.hash.includes('type=recovery'))) {
+      console.log('Supabase session found from redirect, syncing with backend...');
+
+      try {
+        const response = await fetch(`${API_BASE}/api/auth/google`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ accessToken: session.access_token })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+           localStorage.setItem('currentUser', JSON.stringify({
+            id: data.user.id,
+            name: data.user.name,
+            email: data.user.email
+          }));
+
+          // Clear URL fragment
+          window.history.replaceState({}, document.title, window.location.pathname);
+          window.location.href = 'dashboard.html';
+        } else {
+          console.error('Backend sync failed:', data.error);
+          alert('Login failed: ' + data.error);
+          await supabase.auth.signOut();
+        }
+      } catch (err) {
+        console.error('Backend sync error:', err);
+      }
+    }
+  }
+
   // Check if we're on the dashboard page
   if (window.location.pathname.includes('dashboard.html')) {
     const userData = localStorage.getItem('currentUser');
