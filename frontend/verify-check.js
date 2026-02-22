@@ -39,17 +39,9 @@ document.addEventListener('DOMContentLoaded', () => {
         <p style="margin-bottom: 25px; line-height: 1.6; color: #4a5568;">
           Your email has been successfully verified.
         </p>
-        <div style="background: #ebf8ff; border-left: 4px solid #4299e1; padding: 15px; margin-bottom: 25px; text-align: left;">
-          <p style="color: #2c5282; font-size: 14px; margin: 0;">
-            <strong>Next Step:</strong> You can now close this browser window and return to the <strong>Attendance App</strong> to log in.
-          </p>
-        </div>
         <button onclick="window.close()" style="background: #667eea; color: white; border: none; padding: 12px 30px; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: 600; width: 100%; margin-bottom: 10px;">
           Close Window
         </button>
-        <p style="font-size: 12px; color: #a0aec0;">
-          If the button doesn't work, please switch back to the app manually.
-        </p>
       </div>
     `;
 
