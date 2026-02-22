@@ -4,7 +4,35 @@
 // API Configuration - Update this to your deployed backend URL
 const API_BASE = window.location.origin; // Uses same domain as frontend
 
+// ============ SUPABASE CONFIG ============
+const SUPABASE_URL = 'https://iyd2lrjfufiyptbsbnxg.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5ZDJscmpmdWZpeXB0YnNibnhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkxNTQ0MTIsImV4cCI6MjA1NDczMDQxMn0.p9M7vGrLwwvXGNaXqsxHZgCwJpE3lIQnNx0F5TXLR3I';
+
+let supabase;
+if (window.supabase) {
+  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
 // ============ AUTHENTICATION ============
+
+async function loginWithGoogle() {
+  if (!supabase) {
+    alert('Supabase client not initialized. Check internet connection.');
+    return;
+  }
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: window.location.origin + '/login.html'
+    }
+  });
+
+  if (error) {
+    console.error('Google login error:', error);
+    alert('Google login failed: ' + error.message);
+  }
+}
 
 async function register() {
   const name = document.getElementById('name')?.value;
@@ -16,24 +44,49 @@ async function register() {
     return;
   }
 
-  try {
-    const response = await fetch(`${API_BASE}/api/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password })
-    });
+  // Use Supabase Auth for registration
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+          data: {
+            full_name: name
+          }
+        }
+      });
 
-    const data = await response.json();
+      if (error) throw error;
 
-    if (response.ok) {
-      alert('Registration successful! Please login.');
+      alert('Registration successful! Please check your email for verification.');
       window.location.href = 'login.html';
-    } else {
-      alert(data.error || 'Registration failed');
+    } catch (err) {
+      console.error('Supabase register error:', err);
+      // Fallback to legacy registration if needed, or just show error
+      alert('Registration failed: ' + err.message);
     }
-  } catch (err) {
-    console.error('Register error:', err);
-    alert('Registration failed. Please try again.');
+  } else {
+    // Legacy registration fallback
+    try {
+      const response = await fetch(`${API_BASE}/api/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert('Registration successful! Please login.');
+        window.location.href = 'login.html';
+      } else {
+        alert(data.error || 'Registration failed');
+      }
+    } catch (err) {
+      console.error('Register error:', err);
+      alert('Registration failed. Please try again.');
+    }
   }
 }
 
@@ -46,6 +99,43 @@ async function login() {
     return;
   }
 
+  // Try Supabase Auth first
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
+
+      if (data?.session) {
+        // Sync with backend
+        const response = await fetch(`${API_BASE}/api/auth/sync`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ accessToken: data.session.access_token })
+        });
+
+        const userData = await response.json();
+
+        if (response.ok) {
+          localStorage.setItem('currentUser', JSON.stringify({
+            id: userData.user.id,
+            name: userData.user.name,
+            email: userData.user.email
+          }));
+          window.location.href = 'dashboard.html';
+          return;
+        }
+      }
+
+      // If Supabase login failed or sync failed, try legacy login
+      console.log('Supabase login/sync failed, trying legacy login...');
+    } catch (err) {
+      console.error('Supabase login error:', err);
+    }
+  }
+
+  // Legacy Login
   try {
     const response = await fetch(`${API_BASE}/api/login`, {
       method: 'POST',
@@ -82,7 +172,45 @@ function logout() {
 let currentUser = null;
 
 // Initialize dashboard on page load
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  // Check for Supabase session on load (for OAuth callback)
+  // Only proceed if we have a hash fragment (redirect from Google) to avoid auto-login loops
+  if (supabase && (window.location.pathname.includes('login.html') || window.location.pathname.includes('register.html'))) {
+    const { data: { session }, error } = await supabase.auth.getSession();
+
+    if (session && window.location.hash && (window.location.hash.includes('access_token') || window.location.hash.includes('type=recovery'))) {
+      console.log('Supabase session found from redirect, syncing with backend...');
+
+      try {
+        const response = await fetch(`${API_BASE}/api/auth/sync`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ accessToken: session.access_token })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+           localStorage.setItem('currentUser', JSON.stringify({
+            id: data.user.id,
+            name: data.user.name,
+            email: data.user.email
+          }));
+
+          // Clear URL fragment
+          window.history.replaceState({}, document.title, window.location.pathname);
+          window.location.href = 'dashboard.html';
+        } else {
+          console.error('Backend sync failed:', data.error);
+          alert('Login failed: ' + data.error);
+          await supabase.auth.signOut();
+        }
+      } catch (err) {
+        console.error('Backend sync error:', err);
+      }
+    }
+  }
+
   // Check if we're on the dashboard page
   if (window.location.pathname.includes('dashboard.html')) {
     const userData = localStorage.getItem('currentUser');
@@ -151,7 +279,12 @@ if (cancelBtn) {
 async function openCamera() {
   try {
     cameraModal.classList.remove('hidden');
-    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    // Request environment camera (back camera) on mobile, fallback to user camera
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: { ideal: 'environment' }
+      }
+    });
     video.srcObject = stream;
     video.style.display = 'block';
     photoPreview.style.display = 'none';

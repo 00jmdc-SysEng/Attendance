@@ -33,24 +33,16 @@ body::before {
   padding: 40px 20px;
 }
 /* Header Branding */
-.container::before {
-  content: '@ Python Solutions';
+/* .container::before and .container::after removed */
+.app-logo {
   display: block;
-  font-size: 1.8rem;
-  font-weight: 300;
-  color: #c83232;
-  margin-bottom: 10px;
-  letter-spacing: 1px;
+  margin: 0 auto 20px auto;
+  max-width: 150px;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
-.container::after {
-  content: 'ATTENDANCE SYSTEM';
-  display: block;
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin-bottom: 30px;
-  letter-spacing: 2px;
-}
+
 /* Auth & Dashboard Sections */
 #auth, #dashboard {
   background: rgba(20, 5, 5, 0.85);
