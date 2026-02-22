@@ -1,3 +1,7 @@
+:root {
+  color-scheme: light;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -410,11 +414,40 @@ body {
   border-radius: 8px;
 }
 
+/* Table Wrapper for Responsive Tables */
+.table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+
+  .admin-container {
+    width: 100%;
+    margin: 0;
+    border-radius: 8px;
+  }
+
   .admin-header {
     flex-direction: column;
     gap: 15px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .admin-header h1 {
+    font-size: 24px;
+  }
+
+  .admin-user-info {
+    flex-direction: column;
+    gap: 10px;
   }
 
   .admin-tabs {
@@ -423,19 +456,34 @@ body {
 
   .tab-btn {
     width: 100%;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  .tab-content {
+    padding: 15px;
   }
 
   .stats-grid {
     grid-template-columns: 1fr;
+    gap: 15px;
   }
 
   .filter-panel {
     grid-template-columns: 1fr;
+    padding: 15px;
   }
 
   .btn-primary,
   .btn-secondary {
     width: 100%;
     margin-bottom: 10px;
+    margin-right: 0;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 10px;
+    font-size: 14px;
+    white-space: nowrap;
   }
 }
