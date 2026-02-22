@@ -594,12 +594,19 @@ ul#records li img {
   box-shadow: 
     0 20px 60px rgba(0, 0, 0, 0.8),
     0 0 60px rgba(200, 50, 50, 0.2);
+  color: #ffffff; /* Ensure text is white */
 }
 .modal-content h3 {
   margin-top: 0;
   color: #c83232;
   text-align: center;
   font-size: 1.2rem;
+  margin-bottom: 20px;
+}
+.modal-content p,
+.modal-content span,
+.modal-content div {
+  color: #ffffff;
 }
 .modal-buttons {
   display: flex;
