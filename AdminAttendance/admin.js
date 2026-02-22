@@ -142,7 +142,7 @@ function displayTodaySummary(attendance) {
     return;
   }
   
-  let html = '<table class="data-table"><thead><tr><th>Employee</th><th>Status</th><th>Clock In</th><th>Clock Out</th></tr></thead><tbody>';
+  let html = '<div class="table-wrapper"><table class="data-table"><thead><tr><th>Employee</th><th>Status</th><th>Clock In</th><th>Clock Out</th></tr></thead><tbody>';
   
   attendance.forEach(record => {
     const status = record.leave_type ? 
@@ -161,7 +161,7 @@ function displayTodaySummary(attendance) {
     `;
   });
   
-  html += '</tbody></table>';
+  html += '</tbody></table></div>';
   container.innerHTML = html;
 }
 
@@ -249,14 +249,14 @@ async function loadAttendanceLogs() {
 }
 
 function displayAttendanceLogs(logs) {
-  const container = document.getElementById('attendanceLogs');
+  const container = document.getElementById('attendanceLogsList');
   
   if (!logs.length) {
     container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><p>No attendance records found</p></div>';
     return;
   }
   
-  let html = '<table class="data-table"><thead><tr><th>Employee</th><th>Date</th><th>Mode</th><th>Clock In</th><th>Clock Out</th><th>Hours</th><th>Photo</th></tr></thead><tbody>';
+  let html = '<div class="table-wrapper"><table class="data-table"><thead><tr><th>Employee</th><th>Date</th><th>Mode</th><th>Clock In</th><th>Clock Out</th><th>Hours</th><th>Photo</th></tr></thead><tbody>';
   
   logs.forEach(log => {
     html += `
@@ -272,7 +272,7 @@ function displayAttendanceLogs(logs) {
     `;
   });
   
-  html += '</tbody></table>';
+  html += '</tbody></table></div>';
   container.innerHTML = html;
 }
 
@@ -294,14 +294,14 @@ async function loadLeaves() {
 }
 
 function displayLeaves(leaves) {
-  const container = document.getElementById('leaveRecords');
+  const container = document.getElementById('leavesList');
   
   if (!leaves.length) {
     container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🏖️</div><p>No leave records found</p></div>';
     return;
   }
   
-  let html = '<table class="data-table"><thead><tr><th>Employee</th><th>Leave Type</th><th>Reason</th><th>Date Filed</th></tr></thead><tbody>';
+  let html = '<div class="table-wrapper"><table class="data-table"><thead><tr><th>Employee</th><th>Leave Type</th><th>Reason</th><th>Date Filed</th></tr></thead><tbody>';
   
   leaves.forEach(leave => {
     html += `
@@ -314,7 +314,7 @@ function displayLeaves(leaves) {
     `;
   });
   
-  html += '</tbody></table>';
+  html += '</tbody></table></div>';
   container.innerHTML = html;
 }
 
