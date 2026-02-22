@@ -1,4 +1,8 @@
 /* Python Solutions Red Theme - Attendance System */
+:root {
+  color-scheme: dark;
+}
+
 * {
   margin: 0;
   padding: 0;

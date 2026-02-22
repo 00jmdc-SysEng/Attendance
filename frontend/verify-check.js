@@ -33,13 +33,13 @@ document.addEventListener('DOMContentLoaded', () => {
     overlay.style.textAlign = 'center';
 
     overlay.innerHTML = `
-      <div style="background: white; color: #2d3748; padding: 30px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); max-width: 90%; width: 350px;">
+      <div style="background: rgba(30, 10, 10, 0.95); border: 2px solid rgba(200, 50, 50, 0.5); color: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); max-width: 90%; width: 350px;">
         <div style="font-size: 60px; margin-bottom: 20px;">✅</div>
-        <h2 style="margin-bottom: 15px; font-size: 24px; color: #2d3748;">Email Verified!</h2>
-        <p style="margin-bottom: 25px; line-height: 1.6; color: #4a5568;">
+        <h2 style="margin-bottom: 15px; font-size: 24px; color: #c83232;">Email Verified!</h2>
+        <p style="margin-bottom: 25px; line-height: 1.6; color: rgba(255, 255, 255, 0.8);">
           Your email has been successfully verified.
         </p>
-        <button onclick="window.close()" style="background: #667eea; color: white; border: none; padding: 12px 30px; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: 600; width: 100%; margin-bottom: 10px;">
+        <button onclick="window.close()" style="background: linear-gradient(135deg, #c83232 0%, #8b1a1a 100%); color: white; border: none; padding: 12px 30px; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: 600; width: 100%; margin-bottom: 10px;">
           Close Window
         </button>
       </div>
